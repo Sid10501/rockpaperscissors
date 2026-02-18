@@ -9,8 +9,8 @@ let db: InstanceType<typeof import('better-sqlite3')> | null = null;
 
 try {
   const Database = require('better-sqlite3');
-  db = new Database('leaderboard.sqlite');
-  db.exec(`
+  db = new Database('leaderboard.sqlite') as InstanceType<typeof import('better-sqlite3')>;
+  db!.exec(`
     CREATE TABLE IF NOT EXISTS players (
       name TEXT PRIMARY KEY,
       wins INTEGER NOT NULL DEFAULT 0,
