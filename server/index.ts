@@ -19,7 +19,15 @@ import { getAiChoice } from './aiOpponent.js';
 import { recordResult, getTop10 } from './leaderboard.js';
 import type { Choice, AiDifficulty } from '../shared/types.js';
 
-const PORT = process.env.PORT ?? 3001;
+const PORT_RAW = process.env.PORT ?? '3001';
+const PORT = (() => {
+  const n = parseInt(String(PORT_RAW).trim(), 10);
+  if (Number.isNaN(n) || n <= 0) {
+    console.warn(`Invalid PORT "${PORT_RAW}", using 3001. On Render, do not set PORT manually — let Render set it.`);
+    return 3001;
+  }
+  return n;
+})();
 const COUNTDOWN_MS = 4000;
 
 process.on('uncaughtException', (err) => {
@@ -239,6 +247,6 @@ io.on('connection', (socket) => {
 });
 
 const HOST = process.env.HOST ?? '0.0.0.0';
-httpServer.listen(Number(PORT), HOST, () => {
+httpServer.listen(PORT, HOST, () => {
   console.log(`Server listening on http://${HOST}:${PORT}`);
 });

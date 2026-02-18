@@ -14,9 +14,9 @@ npm run dev
 
 ## Deployment
 
-- **Server (Railway / Render):** Set `PORT` in the environment. Deploy the repo; use build command `cd server && npm install` and start `cd server && npm run dev` (or `npm start` after `npm run build`). For Render, you can use the included `render.yaml`.
-- **Client:** Set `VITE_SERVER_URL` to your server URL (e.g. `https://your-app.railway.app`) before building. Deploy the `client` folder to Vercel/Netlify, or build and serve `client/dist` from your server.
-- **WebSockets:** Ensure your host allows WebSocket connections (Railway and Render do).
+- **Server (Render):** Use the included `render.yaml`. Build: `cd server && npm install && npm run build`. Start: `cd server && npm start`. Set **CORS_ORIGIN** to your frontend URL after deploy. See [RENDER_502.md](RENDER_502.md) if you get 502s.
+- **Client (Vercel):** Set Root Directory to `client`, add env var **VITE_SERVER_URL** (e.g. `https://rps-server-swf1.onrender.com`). See [VERCEL_DEPLOY.md](VERCEL_DEPLOY.md).
+- **WebSockets:** Render and Vercel support WebSockets; no extra config needed.
 
 ## Scripts
 

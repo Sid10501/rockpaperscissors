@@ -21,3 +21,6 @@ If the frontend gets **502** when hitting `https://rps-server-swf1.onrender.com/
 
 5. **Health check**  
    Open `https://rps-server-swf1.onrender.com/health` in a browser. You should see `{"ok":true}`. If that also returns 502, the process isn’t starting correctly; use the logs from step 3.
+
+6. **“No open ports detected” / “Port scan timeout”**  
+   Render must see your app listening on the port it provides. **Do not set `PORT` in Environment** — leave it unset so Render injects a numeric port (e.g. 10000). If you set `PORT` to something else (e.g. a secret by mistake), the app may listen on the wrong port or fail to bind. Fix: **Dashboard → rps-server → Environment** → remove the `PORT` variable if you added it, then redeploy.
