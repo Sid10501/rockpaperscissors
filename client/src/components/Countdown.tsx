@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { socket } from '../socket'
+import { playTick } from '../lib/sounds'
 import type { RevealResultPayload } from '../types'
+import ReactionBar from './ReactionBar'
 
 const WORDS = ['Rock...', 'Paper...', 'Scissors...', 'SHOOT!']
 const WORD_MS = 800
@@ -33,6 +35,10 @@ export default function Countdown({ onReveal, onOpponentDisconnected }: Countdow
   }, [onReveal, onOpponentDisconnected])
 
   useEffect(() => {
+    playTick()
+  }, [wordIndex])
+
+  useEffect(() => {
     if (wordIndex >= WORDS.length) return
     const t = setTimeout(() => setWordIndex((i) => i + 1), WORD_MS)
     return () => clearTimeout(t)
@@ -46,6 +52,9 @@ export default function Countdown({ onReveal, onOpponentDisconnected }: Countdow
       <p className="text-4xl font-mono font-bold text-green-400 text-center min-h-[4rem]">
         {word}
       </p>
+      <div className="mt-8">
+        <ReactionBar />
+      </div>
     </main>
   )
 }

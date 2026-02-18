@@ -1,10 +1,12 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { socket } from '../socket'
+import { playWin, playLose, playTie } from '../lib/sounds'
 import type { RevealState } from '../App'
 import type { Choice } from '../types'
 import Scoreboard from './Scoreboard'
 import LeaderboardPanel from './LeaderboardPanel'
 import type { GameScore } from '../App'
+import type { GameResultWinner } from '../types'
 
 const ASCII_ART: Record<Choice, string> = {
   rock: `    _____
@@ -29,19 +31,40 @@ interface RevealScreenProps {
   reveal: RevealState
   opponentName: string
   score: GameScore
+  roundHistory: GameResultWinner[]
+  isAi: boolean
   onRematch: () => void
   onOpponentDisconnected: () => void
+}
+
+const ROUND_ICON: Record<GameResultWinner, string> = {
+  you: '✅',
+  opponent: '❌',
+  tie: '🟡',
 }
 
 export default function RevealScreen({
   reveal,
   opponentName,
   score,
+  roundHistory,
+  isAi,
   onRematch,
   onOpponentDisconnected,
 }: RevealScreenProps) {
+  const [rematchRequested, setRematchRequested] = useState(false)
+
   useEffect(() => {
-    const onRematchReady = () => onRematch()
+    if (reveal.winner === 'you') playWin()
+    else if (reveal.winner === 'opponent') playLose()
+    else playTie()
+  }, [reveal.winner])
+
+  useEffect(() => {
+    const onRematchReady = () => {
+      setRematchRequested(false)
+      onRematch()
+    }
     const onOpponentDisconnectedPayload = () => onOpponentDisconnected()
     socket.on('rematch_ready', onRematchReady)
     socket.on('opponent_disconnected', onOpponentDisconnectedPayload)
@@ -80,15 +103,33 @@ export default function RevealScreen({
           <p className="text-gray-500 mt-2 capitalize">{reveal.opponentChoice}</p>
         </div>
       </div>
+      {roundHistory.length > 0 && (
+        <div className="flex gap-1 mb-4 text-xl" aria-label="Last 5 rounds">
+          {roundHistory.map((r, i) => (
+            <span key={`${i}-${r}`} title={r === 'you' ? 'Win' : r === 'opponent' ? 'Loss' : 'Tie'}>
+              {ROUND_ICON[r]}
+            </span>
+          ))}
+        </div>
+      )}
       <Scoreboard wins={score.wins} losses={score.losses} ties={score.ties} />
       <button
         type="button"
-        onClick={() => socket.emit('request_rematch')}
-        className="mt-8 bg-green-600 hover:bg-green-500 text-white font-semibold py-3 px-6 rounded transition"
+        onClick={() => {
+          setRematchRequested(true)
+          socket.emit('request_rematch')
+        }}
+        disabled={rematchRequested && isAi}
+        className="mt-8 bg-green-600 hover:bg-green-500 disabled:opacity-70 text-white font-semibold py-3 px-6 rounded transition"
       >
-        Rematch
+        {isAi ? 'Play again' : rematchRequested ? 'Waiting…' : 'Rematch'}
       </button>
-      <p className="text-gray-500 text-sm mt-4">Waiting for opponent to rematch...</p>
+      {!isAi && rematchRequested && (
+        <p className="text-gray-500 text-sm mt-4">Waiting for opponent to rematch...</p>
+      )}
+      {isAi && rematchRequested && (
+        <p className="text-gray-500 text-sm mt-4">Playing again…</p>
+      )}
       <LeaderboardPanel />
     </main>
   )

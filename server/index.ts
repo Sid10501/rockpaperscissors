@@ -173,6 +173,20 @@ io.on('connection', (socket) => {
     }
   });
 
+  const ALLOWED_REACTION_EMOJIS = new Set(['😂', '🔥', '👀', '💀', '🙏']);
+  socket.on('send_reaction', (payload: unknown) => {
+    try {
+      const { emoji } = payload as { emoji?: string };
+      if (typeof emoji !== 'string' || !ALLOWED_REACTION_EMOJIS.has(emoji)) return;
+      const room = getRoomBySocketId(socket.id);
+      if (!room || room.isAiRoom) return;
+      const opponentId = getOpponentSocketId(room, socket.id);
+      if (opponentId) io.to(opponentId).emit('reaction_received', { emoji });
+    } catch {
+      // no-op
+    }
+  });
+
   socket.on('request_rematch', () => {
     try {
       const room = getRoomBySocketId(socket.id);

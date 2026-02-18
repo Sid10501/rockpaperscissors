@@ -1,5 +1,6 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { socket } from '../socket'
+import { useToast } from './Toast'
 
 interface WaitingRoomProps {
   roomCode: string
@@ -12,17 +13,29 @@ export default function WaitingRoom({
   onOpponentJoined,
   onBack,
 }: WaitingRoomProps) {
+  const { addToast } = useToast()
   useEffect(() => {
     const onOpponentJoinedPayload = (data: { opponentName?: string }) => {
       if (data.opponentName) onOpponentJoined(data.opponentName)
     }
+    const onOpponentDisconnectedPayload = () => {
+      addToast('Opponent disconnected')
+      onBack()
+    }
     socket.on('opponent_joined', onOpponentJoinedPayload)
+    socket.on('opponent_disconnected', onOpponentDisconnectedPayload)
     return () => {
       socket.off('opponent_joined', onOpponentJoinedPayload)
+      socket.off('opponent_disconnected', onOpponentDisconnectedPayload)
     }
-  }, [onOpponentJoined])
+  }, [onOpponentJoined, onBack, addToast])
 
-  const copyCode = () => navigator.clipboard.writeText(roomCode)
+  const [copied, setCopied] = useState(false)
+  const copyCode = () => {
+    navigator.clipboard.writeText(roomCode)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 1500)
+  }
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center p-6">
@@ -32,7 +45,7 @@ export default function WaitingRoom({
         onClick={copyCode}
         className="bg-gray-700 hover:bg-gray-600 text-white py-2 px-4 rounded mb-6"
       >
-        Copy code
+        {copied ? 'Copied!' : 'Copy code'}
       </button>
       <div className="animate-pulse text-gray-400 mb-8">Waiting for opponent...</div>
       <div className="h-10 w-10 border-2 border-green-500 border-t-transparent rounded-full animate-spin mb-8" />

@@ -10,7 +10,9 @@ export default function LeaderboardPanel() {
       if (Array.isArray(data.topPlayers)) setTopPlayers(data.topPlayers)
     }
     socket.on('leaderboard_update', onUpdate)
-    return () => socket.off('leaderboard_update', onUpdate)
+    return () => {
+      socket.off('leaderboard_update', onUpdate)
+    }
   }, [])
 
   if (topPlayers.length === 0) return null
