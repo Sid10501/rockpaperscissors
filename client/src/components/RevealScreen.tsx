@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { socket } from '../socket'
 import { playWin, playLose, playTie } from '../lib/sounds'
 import type { RevealState } from '../App'
@@ -6,6 +6,48 @@ import type { Choice, GameResultWinner } from '../types'
 import Scoreboard from './Scoreboard'
 import LeaderboardPanel from './LeaderboardPanel'
 import type { GameScore } from '../App'
+
+const ASCII_ART: Record<Choice, string> = {
+  rock: `    _____
+---'   __\\
+      (    )
+      (    )
+      (    )
+---.__(___)`,
+  paper: `    ___________
+   |           |
+   |  PAPER    |
+   |___________|`,
+  scissors: `      O O
+     \\   /
+      \\ /
+       X
+      / \\`,
+}
+
+const CHAR_SPEED_MS = 14
+
+function useTypewriter(text: string, delayMs = 0): { displayed: string; done: boolean } {
+  const [displayed, setDisplayed] = useState('')
+  const textRef = useRef(text)
+
+  useEffect(() => {
+    textRef.current = text
+    setDisplayed('')
+    let i = 0
+    const start = setTimeout(() => {
+      const t = setInterval(() => {
+        i++
+        setDisplayed(textRef.current.slice(0, i))
+        if (i >= textRef.current.length) clearInterval(t)
+      }, CHAR_SPEED_MS)
+      return () => clearInterval(t)
+    }, delayMs)
+    return () => clearTimeout(start)
+  }, [text, delayMs])
+
+  return { displayed, done: displayed.length >= text.length }
+}
 
 const CHOICE_EMOJI: Record<Choice, string> = {
   rock:     '✊',
@@ -39,6 +81,14 @@ export default function RevealScreen({
   onOpponentDisconnected,
 }: RevealScreenProps) {
   const [rematchRequested, setRematchRequested] = useState(false)
+
+  // Typewriter ASCII art — yours starts after emoji cards appear, opponent follows after yours finishes
+  const yourArt = ASCII_ART[reveal.yourChoice]
+  const opponentArt = ASCII_ART[reveal.opponentChoice]
+  const yourDelay = 600
+  const opponentDelay = yourDelay + yourArt.length * CHAR_SPEED_MS + 200
+  const { displayed: yourDisplayed } = useTypewriter(yourArt, yourDelay)
+  const { displayed: opponentDisplayed } = useTypewriter(opponentArt, opponentDelay)
 
   // Play sound on mount based on result
   useEffect(() => {
@@ -95,6 +145,16 @@ export default function RevealScreen({
             <span className="text-gray-400 text-sm capitalize">{reveal.opponentChoice}</span>
           </div>
         </div>
+      </div>
+
+      {/* ASCII art typewriter reveal */}
+      <div className="grid grid-cols-2 gap-6 max-w-xs w-full mb-6 font-mono text-xs">
+        <pre className="text-green-400 bg-gray-900 border border-gray-700 rounded p-3 min-h-[5rem] whitespace-pre overflow-hidden">
+          {yourDisplayed}
+        </pre>
+        <pre className="text-green-400 bg-gray-900 border border-gray-700 rounded p-3 min-h-[5rem] whitespace-pre overflow-hidden">
+          {opponentDisplayed}
+        </pre>
       </div>
 
       {/* Last 5 rounds history */}
