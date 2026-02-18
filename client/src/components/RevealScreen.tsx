@@ -83,16 +83,14 @@ export default function RevealScreen({
       <div className="grid grid-cols-2 gap-6 max-w-xs w-full mb-6">
         <div className="text-center animate-fade-in-up animation-delay-100">
           <p className="text-gray-400 mb-3 text-sm">You</p>
-          <div className="bg-gray-800 border-2 border-gray-700 rounded-2xl py-6 flex flex-col items-center gap-2">
-            <span className="text-6xl leading-none">{CHOICE_EMOJI[reveal.yourChoice]}</span>
-            <span className="text-gray-400 text-sm capitalize">{reveal.yourChoice}</span>
+          <div className="bg-gray-800 border-2 border-gray-700 rounded-2xl py-6 flex flex-col items-center justify-center">
+            <span className="text-6xl leading-none" aria-label={reveal.yourChoice}>{CHOICE_EMOJI[reveal.yourChoice]}</span>
           </div>
         </div>
         <div className="text-center animate-fade-in-up animation-delay-300">
           <p className="text-gray-400 mb-3 text-sm">{opponentName || 'Opponent'}</p>
-          <div className="bg-gray-800 border-2 border-gray-700 rounded-2xl py-6 flex flex-col items-center gap-2">
-            <span className="text-6xl leading-none">{CHOICE_EMOJI[reveal.opponentChoice]}</span>
-            <span className="text-gray-400 text-sm capitalize">{reveal.opponentChoice}</span>
+          <div className="bg-gray-800 border-2 border-gray-700 rounded-2xl py-6 flex flex-col items-center justify-center">
+            <span className="text-6xl leading-none" aria-label={reveal.opponentChoice}>{CHOICE_EMOJI[reveal.opponentChoice]}</span>
           </div>
         </div>
       </div>
