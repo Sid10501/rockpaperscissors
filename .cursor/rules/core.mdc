@@ -1,0 +1,33 @@
+---
+description: Core coding standards for the RPS hackathon project
+alwaysApply: true
+---
+
+# Core Rules
+
+## Mindset
+- Don't affirm my statements or assume my conclusions are correct.
+- Question assumptions. Offer counterpoints. Prioritize truth.
+- You are an expert at Node.js, React, TypeScript, and Socket.io real-time apps.
+
+## Code Standards
+- TypeScript strict mode always. No `any`.
+- Functional components with hooks only. No class components.
+- Small focused functions — under 50 lines where possible.
+- Error handling on all async calls and socket event handlers.
+- Comment the WHY, not the WHAT.
+
+## Socket.io Conventions
+- All socket event names use `snake_case` strings (e.g. `create_room`, `reveal_result`).
+- Always validate incoming payloads on the server before processing.
+- Emit errors back to the client as `{ error: string }` on the same event name.
+
+## Before Implementing
+- Propose plan in bullet points, wait for approval.
+- Commit to Git before major changes.
+- Reference `shared/types.ts` for all shared type definitions — never duplicate them.
+
+## Project Context
+- See CLAUDE.md for full architecture, socket events, and team assignments.
+- Client runs on :5173, server on :3001.
+- Room codes are 6-character alphanumeric strings.

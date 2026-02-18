@@ -1,0 +1,12 @@
+# Render.com blueprint — deploy server; client can be deployed separately or built and served by server
+services:
+  - type: web
+    name: rps-server
+    env: node
+    buildCommand: cd server && npm install
+    startCommand: cd server && npm run dev
+    envVars:
+      - key: PORT
+        generateValue: true
+      - key: NODE_ENV
+        value: production

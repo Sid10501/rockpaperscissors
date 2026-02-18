@@ -1,0 +1,32 @@
+---
+description: Node.js/Server rules for RPS server
+globs: ["server/**/*.ts", "shared/**/*.ts"]
+alwaysApply: false
+---
+
+# Backend Rules
+
+## Node.js / Express
+- All socket event handlers are async-safe — wrap in try/catch.
+- Never block the event loop: no synchronous file I/O, no heavy loops.
+- Use `tsx` for development (`npm run dev` in server/).
+
+## Room Manager
+- Rooms stored in a `Map<string, Room>` in memory.
+- Room codes: 6-character alphanumeric, uppercase (e.g. `SHARK42`).
+- Clean up rooms when both players disconnect.
+- Room state shape defined in `shared/types.ts`.
+
+## Game Logic
+- `determineWinner(a: Choice, b: Choice): 'player1' | 'player2' | 'tie'` — pure function, no side effects.
+- Emit `start_countdown` only when BOTH players have submitted choices.
+- Emit `reveal_result` after countdown delay (server-authoritative timing).
+
+## Socket Events
+- Validate all incoming payloads — reject with `{ error: 'Invalid payload' }` if malformed.
+- Use `socket.to(roomCode).emit(...)` to send to the other player in a room.
+- Use `io.to(roomCode).emit(...)` to broadcast to all players in a room.
+
+## Shared Types
+- `shared/types.ts` is the single source of truth for `Choice`, `Room`, `Player`, `GameResult`.
+- Server imports from `../../shared/types`, client imports from `../types` (mirrored copy or symlink).

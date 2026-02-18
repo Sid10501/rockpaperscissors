@@ -1,0 +1,32 @@
+---
+description: React/Frontend rules for RPS client
+globs: ["client/**/*.tsx", "client/**/*.ts", "client/src/components/**"]
+alwaysApply: false
+---
+
+# Frontend Rules
+
+## React
+- Functional components only with proper TypeScript prop types.
+- Custom hooks for all socket event subscriptions (e.g. `useGameSocket`).
+- Memoize expensive renders with `useMemo` / `useCallback`.
+- Use `useEffect` cleanup to unsubscribe socket listeners on unmount.
+
+## Socket.io Client
+- Import the singleton from `client/src/socket.ts` — never create a new `io()` instance.
+- Always remove listeners in `useEffect` cleanup: `socket.off('event_name')`.
+
+## Styling
+- TailwindCSS utility classes only. No inline styles. No CSS modules.
+- Dark theme: `bg-gray-900` base, `text-green-400` for ASCII art / terminal feel.
+- Monospace font (`font-mono`) for all ASCII art and countdown text.
+- Mobile-first responsive design.
+
+## Accessibility
+- Label all form inputs with `<label>` or `aria-label`.
+- Keyboard navigation required for choice buttons.
+- Use semantic HTML (`<button>`, `<main>`, `<section>`).
+
+## Game Screens Flow
+NameEntry → RoomScreen → WaitingRoom → ChoiceSelector → Countdown → RevealScreen
+Each screen is a separate component. Parent `App.tsx` manages current screen via state.
