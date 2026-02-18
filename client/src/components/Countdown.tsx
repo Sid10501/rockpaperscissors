@@ -38,7 +38,8 @@ export default function Countdown({ onReveal, onOpponentDisconnected }: Countdow
     return () => clearTimeout(t)
   }, [wordIndex])
 
-  const word = WORDS[wordIndex] ?? ''
+  // Hold on the last word until the reveal payload arrives from the server
+  const word = WORDS[Math.min(wordIndex, WORDS.length - 1)] ?? ''
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center p-6">

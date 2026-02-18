@@ -52,15 +52,18 @@ export default function RevealScreen({
   }, [onRematch, onOpponentDisconnected])
 
   const winnerText =
+    reveal.winner === 'you' ? 'You win!' : reveal.winner === 'opponent' ? 'You lose' : "It's a tie!"
+
+  const winnerColor =
     reveal.winner === 'you'
-      ? 'You win!'
+      ? 'text-green-400'
       : reveal.winner === 'opponent'
-        ? 'You lose'
-        : 'Tie!'
+        ? 'text-red-400'
+        : 'text-yellow-400'
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center p-6">
-      <h2 className="text-2xl font-bold text-green-400 mb-8 font-mono">{winnerText}</h2>
+      <h2 className={`text-2xl font-bold mb-8 font-mono ${winnerColor}`}>{winnerText}</h2>
       <div className="grid grid-cols-2 gap-8 max-w-lg w-full mb-8">
         <div className="text-center">
           <p className="text-gray-400 mb-2">You</p>

@@ -8,4 +8,5 @@ client/dist
 server/dist
 .DS_Store
 *.log
-.cursor
+.cursor/*.json
+.cursor/tmp

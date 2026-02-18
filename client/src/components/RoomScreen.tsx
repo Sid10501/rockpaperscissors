@@ -80,7 +80,7 @@ export default function RoomScreen({
         <h2 className="text-xl font-bold text-green-400 mb-6">Create or join a room</h2>
         <div className="flex flex-col gap-4 w-full max-w-xs">
           <button
-            onClick={() => setMode('create')}
+            onClick={handleCreate}
             className="bg-gray-700 hover:bg-gray-600 text-white py-3 rounded transition"
           >
             Create room
