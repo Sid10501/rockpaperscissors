@@ -10,3 +10,5 @@ server/dist
 *.log
 .cursor/*.json
 .cursor/tmp
+*.tsbuildinfo
+server/leaderboard.sqlite
