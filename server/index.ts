@@ -1,7 +1,7 @@
 /**
  * Express + Socket.io server. Handles create_room, join_room, submit_choice, request_rematch, disconnect.
  */
-import express from 'express';
+import express, { type Request, type Response } from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import { determineWinner } from './gameLogic.js';
@@ -29,7 +29,7 @@ const io = new Server(httpServer, {
   path: '/socket.io',
 });
 
-app.get('/health', (_req, res) => {
+app.get('/health', (_req: Request, res: Response) => {
   res.json({ ok: true });
 });
 
