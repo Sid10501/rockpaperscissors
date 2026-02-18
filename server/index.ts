@@ -22,6 +22,14 @@ import type { Choice, AiDifficulty } from '../shared/types.js';
 const PORT = process.env.PORT ?? 3001;
 const COUNTDOWN_MS = 4000;
 
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught exception:', err);
+  process.exit(1);
+});
+process.on('unhandledRejection', (reason, p) => {
+  console.error('Unhandled rejection at', p, reason);
+});
+
 const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
@@ -230,6 +238,7 @@ io.on('connection', (socket) => {
   });
 });
 
-httpServer.listen(PORT, () => {
-  console.log(`Server listening on http://localhost:${PORT}`);
+const HOST = process.env.HOST ?? '0.0.0.0';
+httpServer.listen(Number(PORT), HOST, () => {
+  console.log(`Server listening on http://${HOST}:${PORT}`);
 });
