@@ -14,9 +14,9 @@ type Mode = 'choose' | 'create' | 'join' | 'ai_choose' | 'ai'
 type AiDifficulty = 'random' | 'adaptive' | 'hard'
 
 const AI_DIFFICULTIES: { value: AiDifficulty; label: string; description: string }[] = [
-  { value: 'random', label: 'Easy', description: 'Random choices' },
+  { value: 'random',   label: 'Easy',   description: 'Random choices' },
   { value: 'adaptive', label: 'Medium', description: 'Adapts to your play' },
-  { value: 'hard', label: 'Hard', description: 'Markov-style prediction' },
+  { value: 'hard',     label: 'Hard',   description: 'Markov-style prediction' },
 ]
 
 export default function RoomScreen({
@@ -33,18 +33,11 @@ export default function RoomScreen({
 
   useEffect(() => {
     const onRoomCreatedPayload = (data: { roomCode?: string; error?: string }) => {
-      if (data.error) {
-        setError(data.error)
-        playingVsAiRef.current = false
-        return
-      }
+      if (data.error) { setError(data.error); playingVsAiRef.current = false; return }
       if (data.roomCode && !playingVsAiRef.current) onRoomCreated(data.roomCode)
     }
     const onRoomJoined = (data: { error?: string }) => {
-      if (data.error) {
-        setError(data.error)
-        return
-      }
+      if (data.error) { setError(data.error); return }
     }
     const onGameReadyPayload = (data: { opponentName?: string }) => {
       playingVsAiRef.current = false
@@ -52,12 +45,12 @@ export default function RoomScreen({
     }
 
     socket.on('room_created', onRoomCreatedPayload)
-    socket.on('room_joined', onRoomJoined)
-    socket.on('game_ready', onGameReadyPayload)
+    socket.on('room_joined',  onRoomJoined)
+    socket.on('game_ready',   onGameReadyPayload)
     return () => {
       socket.off('room_created', onRoomCreatedPayload)
-      socket.off('room_joined', onRoomJoined)
-      socket.off('game_ready', onGameReadyPayload)
+      socket.off('room_joined',  onRoomJoined)
+      socket.off('game_ready',   onGameReadyPayload)
     }
   }, [onRoomCreated, onGameReady])
 
@@ -69,10 +62,7 @@ export default function RoomScreen({
 
   const handleJoin = useCallback(() => {
     const code = joinCode.trim().toUpperCase()
-    if (!code) {
-      setError('Enter a room code')
-      return
-    }
+    if (!code) { setError('Enter a room code'); return }
     setError('')
     socket.emit('join_room', { roomCode: code, playerName })
   }, [joinCode, playerName])
@@ -86,29 +76,31 @@ export default function RoomScreen({
 
   if (mode === 'choose') {
     return (
-      <main className="min-h-screen flex flex-col items-center justify-center p-6">
-        <h2 className="text-xl font-bold text-green-400 mb-6">Create or join a room</h2>
-        <div className="flex flex-col gap-4 w-full max-w-xs">
+      <main className="min-h-screen flex flex-col items-center justify-center p-6 animate-fade-in-up">
+        <h2 className="text-xl font-bold text-green-400 mb-2">Hey, {playerName}!</h2>
+        <p className="text-gray-400 text-sm mb-8">How do you want to play?</p>
+
+        <div className="flex flex-col gap-3 w-full max-w-xs">
           <button
             onClick={handleCreate}
-            className="bg-gray-700 hover:bg-gray-600 text-white py-3 rounded transition"
+            className="border-2 border-green-500 text-green-400 hover:bg-green-500 hover:text-white py-3 rounded-lg font-semibold transition-all hover:scale-105 active:scale-95"
           >
-            Create room
+            ＋ Create room
           </button>
           <button
             onClick={() => setMode('join')}
-            className="bg-gray-700 hover:bg-gray-600 text-white py-3 rounded transition"
+            className="border-2 border-blue-500 text-blue-400 hover:bg-blue-500 hover:text-white py-3 rounded-lg font-semibold transition-all hover:scale-105 active:scale-95"
           >
-            Join with code
+            # Join with code
           </button>
           <button
             onClick={() => setMode('ai_choose')}
-            className="bg-purple-700 hover:bg-purple-600 text-white py-3 rounded transition"
+            className="bg-purple-700 hover:bg-purple-600 text-white py-3 rounded-lg font-semibold transition-all hover:scale-105 active:scale-95"
           >
-            Play vs AI
+            🤖 Play vs AI
           </button>
-          <button onClick={onBack} className="text-gray-400 hover:text-white py-2">
-            Back
+          <button onClick={onBack} className="text-gray-500 hover:text-white py-2 text-sm transition">
+            ← Back
           </button>
         </div>
       </main>
@@ -117,23 +109,23 @@ export default function RoomScreen({
 
   if (mode === 'ai_choose') {
     return (
-      <main className="min-h-screen flex flex-col items-center justify-center p-6">
-        <h2 className="text-xl font-bold text-green-400 mb-2">Play vs AI</h2>
-        <p className="text-gray-400 mb-6">Choose difficulty</p>
+      <main className="min-h-screen flex flex-col items-center justify-center p-6 animate-fade-in-up">
+        <h2 className="text-xl font-bold text-purple-400 mb-2">🤖 Play vs AI</h2>
+        <p className="text-gray-400 text-sm mb-6">Choose difficulty</p>
         <div className="flex flex-col gap-3 w-full max-w-xs mb-6">
           {AI_DIFFICULTIES.map(({ value, label, description }) => (
             <button
               key={value}
               onClick={() => handlePlayVsAi(value)}
-              className="bg-gray-700 hover:bg-gray-600 text-white py-3 px-4 rounded transition text-left"
+              className="bg-gray-800 hover:bg-gray-700 border-2 border-gray-600 hover:border-purple-500 text-white py-3 px-4 rounded-lg transition-all hover:scale-105 active:scale-95 text-left"
             >
               <span className="font-semibold">{label}</span>
               <span className="block text-sm text-gray-400">{description}</span>
             </button>
           ))}
         </div>
-        <button onClick={() => setMode('choose')} className="text-gray-400 hover:text-white py-2">
-          Back
+        <button onClick={() => setMode('choose')} className="text-gray-500 hover:text-white py-2 text-sm transition">
+          ← Back
         </button>
       </main>
     )
@@ -141,41 +133,44 @@ export default function RoomScreen({
 
   if (mode === 'create' || mode === 'ai') {
     return (
-      <main className="min-h-screen flex flex-col items-center justify-center p-6">
-        <p className="text-gray-400 mb-4">{mode === 'ai' ? 'Starting vs AI...' : 'Creating room...'}</p>
+      <main className="min-h-screen flex flex-col items-center justify-center p-6 animate-fade-in-up">
+        <p className="text-gray-400 mb-4">{mode === 'ai' ? 'Starting vs AI…' : 'Creating room…'}</p>
         <div className="h-10 w-10 border-2 border-green-500 border-t-transparent rounded-full animate-spin mb-4" />
-        {error && <p className="text-red-400 mt-4">{error}</p>}
+        {error && <p className="text-red-400 mt-4 text-sm">{error}</p>}
       </main>
     )
   }
 
+  // Join mode
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center p-6">
-      <h2 className="text-xl font-bold text-green-400 mb-4">Join room</h2>
-      <label htmlFor="code" className="sr-only">
-        Room code
-      </label>
+    <main className="min-h-screen flex flex-col items-center justify-center p-6 animate-fade-in-up">
+      <h2 className="text-xl font-bold text-blue-400 mb-6">Enter room code</h2>
+
+      <label htmlFor="code" className="sr-only">Room code</label>
       <input
         id="code"
         type="text"
         value={joinCode}
         onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
-        placeholder="Room code"
-        className="bg-gray-800 border border-gray-600 rounded px-4 py-3 text-white font-mono tracking-widest w-full max-w-xs mb-4"
+        placeholder="XXXXXX"
+        className="bg-gray-800 border-2 border-blue-500 rounded-lg px-4 py-3 text-white font-mono tracking-[0.3em] text-xl text-center w-full max-w-xs mb-4 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
         maxLength={6}
+        autoFocus
       />
+
       <div className="flex flex-col gap-2 w-full max-w-xs">
         <button
           onClick={handleJoin}
-          className="bg-green-600 hover:bg-green-500 text-white py-3 rounded transition"
+          className="bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-lg font-semibold transition-all hover:scale-105 active:scale-95"
         >
-          Join
+          Join →
         </button>
-        <button onClick={() => setMode('choose')} className="text-gray-400 hover:text-white py-2">
-          Back
+        <button onClick={() => setMode('choose')} className="text-gray-500 hover:text-white py-2 text-sm transition">
+          ← Back
         </button>
       </div>
-      {error && <p className="text-red-400 mt-4">{error}</p>}
+
+      {error && <p className="text-red-400 mt-4 text-sm">{error}</p>}
     </main>
   )
 }

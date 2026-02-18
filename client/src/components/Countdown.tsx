@@ -24,13 +24,13 @@ export default function Countdown({ onReveal, onOpponentDisconnected }: Countdow
         winner: data.winner,
       })
     }
-    const onOpponentDisconnectedPayload = () => onOpponentDisconnected()
+    const onDisconnect = () => onOpponentDisconnected()
 
     socket.on('reveal_result', onRevealPayload)
-    socket.on('opponent_disconnected', onOpponentDisconnectedPayload)
+    socket.on('opponent_disconnected', onDisconnect)
     return () => {
       socket.off('reveal_result', onRevealPayload)
-      socket.off('opponent_disconnected', onOpponentDisconnectedPayload)
+      socket.off('opponent_disconnected', onDisconnect)
     }
   }, [onReveal, onOpponentDisconnected])
 
@@ -44,12 +44,22 @@ export default function Countdown({ onReveal, onOpponentDisconnected }: Countdow
     return () => clearTimeout(t)
   }, [wordIndex])
 
-  // Hold on the last word until the reveal payload arrives from the server
-  const word = WORDS[Math.min(wordIndex, WORDS.length - 1)] ?? ''
+  // Hold on last word until reveal_result arrives from server
+  const currentIndex = Math.min(wordIndex, WORDS.length - 1)
+  const word = WORDS[currentIndex] ?? ''
+  const isShoot = currentIndex === WORDS.length - 1
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center p-6">
-      <p className="text-4xl font-mono font-bold text-green-400 text-center min-h-[4rem]">
+      {/* key forces remount on every word change, restarting the CSS animation */}
+      <p
+        key={currentIndex}
+        className={`animate-scale-in font-mono font-bold text-center ${
+          isShoot
+            ? 'text-7xl text-white tracking-widest'
+            : 'text-4xl text-green-400'
+        }`}
+      >
         {word}
       </p>
       <div className="mt-8">
