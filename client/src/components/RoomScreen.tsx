@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { socket } from '../socket'
+import LeaderboardPanel from './LeaderboardPanel'
 
 interface RoomScreenProps {
   playerName: string
@@ -103,6 +104,8 @@ export default function RoomScreen({
             ← Back
           </button>
         </div>
+
+        <LeaderboardPanel />
       </main>
     )
   }
@@ -171,6 +174,8 @@ export default function RoomScreen({
       </div>
 
       {error && <p className="text-red-400 mt-4 text-sm">{error}</p>}
+
+      <LeaderboardPanel />
     </main>
   )
 }

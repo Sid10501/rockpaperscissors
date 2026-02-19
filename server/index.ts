@@ -203,6 +203,10 @@ io.on('connection', (socket) => {
     }
   });
 
+  socket.on('request_leaderboard', () => {
+    socket.emit('leaderboard_update', { topPlayers: getTop10() });
+  });
+
   socket.on('request_rematch', () => {
     try {
       const room = getRoomBySocketId(socket.id);

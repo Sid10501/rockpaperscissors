@@ -3,37 +3,39 @@
 ## Project Overview
 
 - **Type:** Full-stack real-time web app
-- **Goal:** Multiplayer Rock Paper Scissors with room-code matchmaking, ASCII art reveal, animated countdown, and per-session scoreboards
-- **Stretch goals:** AI opponent (pattern recognition), leaderboard (SQLite), tournament mode
+- **Features:** Room-code matchmaking, Play vs AI (Easy/Medium/Hard), global leaderboard (SQLite), emoji reactions, sounds, URL room sharing, toast notifications, connection status
+- **Hosting:** Render (server), Vercel (client)
 
 ## Tech Stack
 
-- **Frontend:** React + Vite + TypeScript
-- **Styling:** TailwindCSS (dark theme, monospace for ASCII art)
+- **Frontend:** React 18 + Vite + TypeScript
+- **Styling:** TailwindCSS (dark theme)
 - **Real-time:** Socket.io v4 (client + server)
-- **Backend:** Node.js + Express + TypeScript (`tsx` for dev)
-- **State:** In-memory Map (no DB for MVP)
-- **Stretch DB:** SQLite via `better-sqlite3`
-- **Hosting:** Railway or Render (WebSocket support required)
+- **Backend:** Node.js + Express + TypeScript (`tsx` for dev, `tsc` for build)
+- **State:** In-memory Map (rooms); SQLite via `better-sqlite3` (global leaderboard)
+- **Hosting:** Render (server), Vercel (client)
 
 ## Architecture
 
 ```
 client/src/
-  components/   → React UI screens (NameEntry, RoomScreen, WaitingRoom,
-                  ChoiceSelector, Countdown, RevealScreen, Scoreboard)
-  socket.ts     → Socket.io client singleton
-  types.ts      → Shared types (mirrored from shared/)
+  components/   → NameEntry, RoomScreen, WaitingRoom, ChoiceSelector,
+                  Countdown, RevealScreen, Scoreboard, LeaderboardPanel,
+                  GameHeader, Toast, ReactionBar
+  hooks/        → useSocketStatus
+  lib/           → sounds.ts (Web Audio)
+  socket.ts      → Socket.io client singleton
+  types.ts       → Shared types (mirrored from shared/)
 
 server/
-  index.ts      → Express + Socket.io setup
+  index.ts       → Express + Socket.io, all events
   roomManager.ts → Room creation/joining, in-memory state
-  gameLogic.ts  → Winner determination
-  aiOpponent.ts → AI pattern recognition (stretch)
-  leaderboard.ts → Persistent stats (stretch)
+  gameLogic.ts   → Winner determination
+  aiOpponent.ts  → AI (random / adaptive / Markov)
+  leaderboard.ts → SQLite persistent top 10
 
 shared/
-  types.ts      → Choice, GameState, RoomState (source of truth)
+  types.ts       → Choice, GameResultWinner, LeaderboardPlayer, etc.
 ```
 
 ## Coding Rules
@@ -55,19 +57,24 @@ shared/
 | `join_room` | `{ roomCode: string, playerName: string }` |
 | `submit_choice` | `{ choice: 'rock' \| 'paper' \| 'scissors' }` |
 | `request_rematch` | `{}` |
+| `request_leaderboard` | `{}` — server responds with `leaderboard_update` |
 | `play_vs_ai` | `{ playerName: string, difficulty: 'random' \| 'adaptive' \| 'hard' }` |
+| `send_reaction` | `{ emoji: string }` — allowlist: 😂 🔥 👀 💀 🙏 |
 
 ### Server → Client
 | Event | Payload |
 |-------|---------|
-| `room_created` | `{ roomCode: string }` |
+| `room_created` | `{ roomCode?: string, error?: string }` |
+| `room_joined` | `{ error?: string }` |
+| `game_ready` | `{ opponentName?: string }` |
 | `opponent_joined` | `{ opponentName: string }` |
 | `waiting_for_opponent` | `{}` |
 | `start_countdown` | `{}` |
 | `reveal_result` | `{ yourChoice, opponentChoice, winner: 'you' \| 'opponent' \| 'tie' }` |
 | `opponent_disconnected` | `{}` |
 | `rematch_ready` | `{}` |
-| `leaderboard_update` | `{ topPlayers: Player[] }` |
+| `leaderboard_update` | `{ topPlayers: LeaderboardPlayer[] }` |
+| `reaction_received` | `{ emoji: string }` |
 
 ## Dev Commands
 

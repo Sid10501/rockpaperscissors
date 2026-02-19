@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react'
+import LeaderboardPanel from './LeaderboardPanel'
 
 interface NameEntryProps {
   onContinue: (name: string) => void
@@ -57,6 +58,8 @@ export default function NameEntry({ onContinue }: NameEntryProps) {
           Continue →
         </button>
       </form>
+
+      <LeaderboardPanel />
     </main>
   )
 }
